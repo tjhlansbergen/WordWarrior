@@ -1,6 +1,6 @@
 @WordWarrior_HostAddress = http://localhost:5201
 
-GET {{WordWarrior_HostAddress}}/weatherforecast/
+GET {{WordWarrior_HostAddress}}/sentence/
 Accept: application/json
 
 ###
