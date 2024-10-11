@@ -13,5 +13,5 @@ public class Sentence
 {
     public int Id { get; set; }
     public required string Content { get; set; }
-    public required DateTime InsertedUtc { get; set; }
+    public DateTime InsertedUtc { get; init; } = DateTime.UtcNow;
 }
