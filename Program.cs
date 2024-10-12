@@ -14,6 +14,10 @@ public class Program
 
         var app = builder.Build();
         app.UseHttpsRedirection();
+        
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+
         SetupEndpoints(app);
 
         app.Run();
