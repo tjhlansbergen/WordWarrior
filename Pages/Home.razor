@@ -1,0 +1,18 @@
+﻿@page "/"
+
+<PageTitle>Word Warrior</PageTitle>
+
+<div class="word-container">
+    <input type="text" @bind="currentWord" @oninput="UpdateWord" class="word-input" />
+</div>
+
+@code {
+    private string currentWord = "";
+    private string displayWord = "";
+
+    private void UpdateWord(ChangeEventArgs e)
+    {
+        currentWord = e.Value?.ToString() ?? "";
+        displayWord = currentWord;
+    }
+}
