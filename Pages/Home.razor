@@ -1,18 +1,114 @@
 ﻿@page "/"
+@inject WordWarrior.Services.DictionaryService DictionaryService
 
 <PageTitle>Word Warrior</PageTitle>
 
-<div class="word-container">
-    <input type="text" @bind="currentWord" @oninput="UpdateWord" class="word-input" />
+<div class="game-container">
+    @if (answerHistory.Any())
+    {
+        <div class="answer-history">
+            @foreach (var answer in answerHistory)
+            {
+                <div class="@(answer.IsCorrect ? "correct-answer-display" : "incorrect-answer-display")">
+                    <span class="word-icon">@answer.WordRecord.Icon</span>
+                    <span class="word-text">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
+                    <span class="validation-icon">@answer.Icon</span>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="word-container">
+        <span class="word-icon">@currentWordRecord?.Icon</span>
+        <input type="text" @bind="currentWord" @oninput="UpdateWord" @onkeypress="HandleKeyPress" class="word-input" />
+    </div>
 </div>
 
 @code {
     private string currentWord = "";
     private string displayWord = "";
+    private WordWarrior.Services.WordRecord? currentWordRecord;
+    private WordWarrior.Services.WordRecord? completedWordRecord;
+    private bool showValidation = false;
+    private string validationIcon = "";
+    private bool isCorrect = false;
+    private string userAttempt = "";
+    private List<AnswerRecord> answerHistory = new();
+    private int incorrectAttempts = 0;
+    private const int MaxIncorrectAttempts = 3;
+
+    public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
+
+    protected override void OnInitialized()
+    {
+        currentWordRecord = DictionaryService.Next(1);
+    }
 
     private void UpdateWord(ChangeEventArgs e)
     {
         currentWord = e.Value?.ToString() ?? "";
         displayWord = currentWord;
+        showValidation = false; // Hide validation when typing
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ValidateWord();
+        }
+    }
+
+    private void ValidateWord()
+    {
+        if (currentWordRecord != null)
+        {
+            userAttempt = currentWord.Trim(); // Store the user's attempt
+            
+            if (string.Equals(currentWord.Trim(), currentWordRecord.Word, StringComparison.OrdinalIgnoreCase))
+            {
+                validationIcon = "✅";
+                isCorrect = true;
+                showValidation = true;
+                
+                // Add correct answer to history
+                answerHistory.Add(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
+                
+                // Reset incorrect attempts counter
+                incorrectAttempts = 0;
+                
+                // Store the completed word before getting a new one
+                completedWordRecord = currentWordRecord;
+                
+                // Clear input and get new word
+                currentWord = "";
+                currentWordRecord = DictionaryService.Next(1);
+            }
+            else
+            {
+                incorrectAttempts++;
+                validationIcon = "❌";
+                isCorrect = false;
+                showValidation = true;
+                
+                // Add incorrect answer to history
+                answerHistory.Add(new AnswerRecord(currentWordRecord, userAttempt, false, "❌"));
+                
+                // Check if max attempts reached
+                if (incorrectAttempts >= MaxIncorrectAttempts)
+                {
+                    // Add correct answer with arrow icon to history
+                    answerHistory.Add(new AnswerRecord(currentWordRecord, currentWordRecord.Word, true, "⬅️"));
+                    
+                    // Reset error count and reload same word
+                    incorrectAttempts = 0;
+                    var wordToReload = currentWordRecord;
+                    currentWordRecord = wordToReload;
+                }
+                
+                // Clear input but keep same word for retry
+                currentWord = "";
+            }
+        }
     }
 }
