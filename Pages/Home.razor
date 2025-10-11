@@ -30,7 +30,7 @@
 
     <div class="word-container">
         <span class="word-icon">@currentWordRecord?.Icon</span>
-        <input type="text" @bind="currentWord" @oninput="UpdateWord" @onkeypress="HandleKeyPress" class="word-input" />
+        <input type="text" @bind="currentWord" @oninput="UpdateWord" @onkeypress="HandleKeyPress" class="word-input" @ref="inputElement" />
     </div>
 </div>
 
@@ -45,6 +45,7 @@
     private const int MaxIncorrectAttempts = 3;
     private const int MaxHistoryItems = 5;
     private string backgroundImageUrl = "";
+    private ElementReference inputElement;
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
@@ -52,6 +53,14 @@
     {
         currentWordRecord = DictionaryService.Next(1);
         backgroundImageUrl = BackgroundService.GetRandomBackground();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await inputElement.FocusAsync();
+        }
     }
 
     private void UpdateWord(ChangeEventArgs e)

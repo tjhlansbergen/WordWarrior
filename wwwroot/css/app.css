@@ -11,9 +11,10 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 100vh;
+    height: 100vh;
     padding: 20px;
     padding-top: 33vh;
+    box-sizing: border-box;
 }
 
 .game-container {
