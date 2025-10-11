@@ -13,25 +13,41 @@
     }
 </style>
 
-<div class="game-container">
-    @if (answerHistory.Any())
+<div class="game-area">
+    @if (isPaused)
     {
-        <div class="answer-history">
-            @foreach (var answer in answerHistory)
+        <div class="pause-screen">
+            <button class="play-button" @onclick="StartGame">
+                <div class="play-triangle"></div>
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="game-container">
+            @if (answerHistory.Any())
             {
-                <div class="@(answer.IsCorrect ? "correct-answer-display" : "incorrect-answer-display")">
-                    <span class="word-icon">@answer.WordRecord.Icon</span>
-                    <span class="word-text @(answer.IsCorrect ? "" : "strikethrough")">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
-                    <span class="validation-icon">@answer.Icon</span>
+                <div class="answer-history">
+                    @foreach (var answer in answerHistory)
+                    {
+                        <div class="@(answer.IsCorrect ? "correct-answer-display" : "incorrect-answer-display")">
+                            <span class="word-icon">@answer.WordRecord.Icon</span>
+                            <span class="word-text @(answer.IsCorrect ? "" : "strikethrough")">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
+                            <span class="validation-icon">@answer.Icon</span>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!hideNextQuestion)
+            {
+                <div class="word-container">
+                    <span class="word-icon">@currentWordRecord?.Icon</span>
+                    <input type="text" @bind="currentWord" @oninput="UpdateWord" @onkeypress="HandleKeyPress" class="word-input" @ref="inputElement" />
                 </div>
             }
         </div>
     }
-
-    <div class="word-container">
-        <span class="word-icon">@currentWordRecord?.Icon</span>
-        <input type="text" @bind="currentWord" @oninput="UpdateWord" @onkeypress="HandleKeyPress" class="word-input" @ref="inputElement" />
-    </div>
 </div>
 
 @code {
@@ -46,6 +62,10 @@
     private const int MaxHistoryItems = 5;
     private string backgroundImageUrl = "";
     private ElementReference inputElement;
+    private bool isPaused = true; // Start in pause mode
+    private int correctAnswerCount = 0;
+    private const int CorrectAnswersBeforePause = 5;
+    private bool hideNextQuestion = false;
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
@@ -57,10 +77,33 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !isPaused)
         {
             await inputElement.FocusAsync();
         }
+    }
+
+    private async Task StartGame()
+    {
+        isPaused = false;
+        correctAnswerCount = 0; // Reset counter when starting
+        StateHasChanged();
+        
+        // Focus the input after the game container is rendered
+        await Task.Delay(50); // Small delay to ensure rendering is complete
+        await inputElement.FocusAsync();
+    }
+
+    private void GetNewBackground()
+    {
+        string newBackground;
+        do
+        {
+            newBackground = BackgroundService.GetRandomBackground();
+        } while (newBackground == backgroundImageUrl);
+        
+        backgroundImageUrl = newBackground;
+        StateHasChanged();
     }
 
     private void UpdateWord(ChangeEventArgs e)
@@ -96,9 +139,11 @@
             
             if (string.Equals(currentWord.Trim(), currentWordRecord.Word, StringComparison.OrdinalIgnoreCase))
             {
-               
                 // Add correct answer to history
                 AddToHistory(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
+                
+                // Increment correct answer counter
+                correctAnswerCount++;
                 
                 // Reset incorrect attempts counter
                 incorrectAttempts = 0;
@@ -109,6 +154,25 @@
                 // Clear input and get new word
                 currentWord = "";
                 currentWordRecord = DictionaryService.Next(1);
+                
+                // Check if we should pause after 5 correct answers
+                if (correctAnswerCount >= CorrectAnswersBeforePause)
+                {
+                    hideNextQuestion = true; // Hide next question immediately
+                    StateHasChanged(); // Update UI to hide the input
+                    
+                    // Wait 2 seconds to show the final correct answer before pausing
+                    Task.Delay(2000).ContinueWith(_ =>
+                    {
+                        InvokeAsync(() =>
+                        {
+                            isPaused = true;
+                            answerHistory.Clear(); // Clear history when pausing
+                            GetNewBackground(); // Set new background when pausing
+                            hideNextQuestion = false; // Reset for next session
+                        });
+                    });
+                }
             }
             else
             {
