@@ -30,11 +30,14 @@ public class DictionaryService
     // hardcoded list of words
     private readonly WordRecord[] _words =
     [
-        new WordRecord("zon", "☀️", 1),
+        new WordRecord("zon", "🌞", 1),
         new WordRecord("bus", "🚌", 1),
+        new WordRecord("kat/poes", "🐱", 1),
         new WordRecord("maan", "🌙", 2),
         new WordRecord("ster", "⭐", 2),
-        new WordRecord("vuur", "🔥", 2),
+        new WordRecord("vuur/vlam", "🔥", 2),
+        new WordRecord("rups", "🐛", 2),
+        new WordRecord("boom", "🌳", 2),
     ];
 }
 

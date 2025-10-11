@@ -32,7 +32,7 @@
                     {
                         <div class="@(answer.IsCorrect ? "correct-answer-display" : "incorrect-answer-display")">
                             <span class="word-icon">@answer.WordRecord.Icon</span>
-                            <span class="word-text @(answer.IsCorrect ? "" : "strikethrough")">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
+                            <span class="word-text @(answer.IsCorrect ? "" : "strikethrough")">@(answer.UserAttempt)</span>
                             <span class="validation-icon">@answer.Icon</span>
                         </div>
                     }
@@ -137,7 +137,12 @@
         {
             userAttempt = currentWord.Trim(); // Store the user's attempt
             
-            if (string.Equals(currentWord.Trim(), currentWordRecord.Word, StringComparison.OrdinalIgnoreCase))
+            // Check if the user's attempt matches any of the correct answers
+            var correctAnswers = currentWordRecord.Word.Split('/');
+            bool isCorrect = correctAnswers.Any(answer => 
+                string.Equals(userAttempt, answer.Trim(), StringComparison.OrdinalIgnoreCase));
+            
+            if (isCorrect)
             {
                 // Add correct answer to history
                 AddToHistory(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
