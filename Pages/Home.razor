@@ -1,7 +1,17 @@
 ﻿@page "/"
 @inject WordWarrior.Services.DictionaryService DictionaryService
+@inject WordWarrior.Services.BackgroundService BackgroundService
 
 <PageTitle>Word Warrior</PageTitle>
+
+<style>
+    body {
+        background-image: url('@backgroundImageUrl');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+</style>
 
 <div class="game-container">
     @if (answerHistory.Any())
@@ -34,12 +44,14 @@
     private int incorrectAttempts = 0;
     private const int MaxIncorrectAttempts = 3;
     private const int MaxHistoryItems = 5;
+    private string backgroundImageUrl = "";
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
     protected override void OnInitialized()
     {
         currentWordRecord = DictionaryService.Next(1);
+        backgroundImageUrl = BackgroundService.GetRandomBackground();
     }
 
     private void UpdateWord(ChangeEventArgs e)
