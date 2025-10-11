@@ -11,7 +11,7 @@
             {
                 <div class="@(answer.IsCorrect ? "correct-answer-display" : "incorrect-answer-display")">
                     <span class="word-icon">@answer.WordRecord.Icon</span>
-                    <span class="word-text">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
+                    <span class="word-text @(answer.IsCorrect ? "" : "strikethrough")">@(answer.IsCorrect ? answer.WordRecord.Word : answer.UserAttempt)</span>
                     <span class="validation-icon">@answer.Icon</span>
                 </div>
             }
@@ -29,13 +29,11 @@
     private string displayWord = "";
     private WordWarrior.Services.WordRecord? currentWordRecord;
     private WordWarrior.Services.WordRecord? completedWordRecord;
-    private bool showValidation = false;
-    private string validationIcon = "";
-    private bool isCorrect = false;
     private string userAttempt = "";
     private List<AnswerRecord> answerHistory = new();
     private int incorrectAttempts = 0;
     private const int MaxIncorrectAttempts = 3;
+    private const int MaxHistoryItems = 5;
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
@@ -48,7 +46,6 @@
     {
         currentWord = e.Value?.ToString() ?? "";
         displayWord = currentWord;
-        showValidation = false; // Hide validation when typing
     }
 
     private void HandleKeyPress(KeyboardEventArgs e)
@@ -56,6 +53,17 @@
         if (e.Key == "Enter")
         {
             ValidateWord();
+        }
+    }
+
+    private void AddToHistory(AnswerRecord record)
+    {
+        answerHistory.Add(record);
+        
+        // Keep only the last 5 items (FIFO)
+        if (answerHistory.Count > MaxHistoryItems)
+        {
+            answerHistory.RemoveAt(0);
         }
     }
 
@@ -67,12 +75,9 @@
             
             if (string.Equals(currentWord.Trim(), currentWordRecord.Word, StringComparison.OrdinalIgnoreCase))
             {
-                validationIcon = "✅";
-                isCorrect = true;
-                showValidation = true;
-                
+               
                 // Add correct answer to history
-                answerHistory.Add(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
+                AddToHistory(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
                 
                 // Reset incorrect attempts counter
                 incorrectAttempts = 0;
@@ -87,18 +92,15 @@
             else
             {
                 incorrectAttempts++;
-                validationIcon = "❌";
-                isCorrect = false;
-                showValidation = true;
                 
                 // Add incorrect answer to history
-                answerHistory.Add(new AnswerRecord(currentWordRecord, userAttempt, false, "❌"));
+                AddToHistory(new AnswerRecord(currentWordRecord, userAttempt, false, "❌"));
                 
                 // Check if max attempts reached
                 if (incorrectAttempts >= MaxIncorrectAttempts)
                 {
                     // Add correct answer with arrow icon to history
-                    answerHistory.Add(new AnswerRecord(currentWordRecord, currentWordRecord.Word, true, "⬅️"));
+                    AddToHistory(new AnswerRecord(currentWordRecord, currentWordRecord.Word, true, "⬅️"));
                     
                     // Reset error count and reload same word
                     incorrectAttempts = 0;

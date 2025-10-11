@@ -3,15 +3,17 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: white;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
 }
 
 .content {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
     padding: 20px;
+    padding-top: 33vh;
 }
 
 .game-container {
@@ -19,7 +21,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    max-width: 500px;
+    max-width: 350px;
     width: 100%;
 }
 
@@ -47,53 +49,65 @@ html, body {
 .validation-icon {
     font-size: 24px;
     margin-left: 10px;
+    position: absolute;
+    right: 20px;
 }
 
 .correct-answer-display {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 10px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border: 2px solid #28a745;
+    padding: 15px 15px 15px 0;
+    background-color: transparent;
+    border: none;
     border-radius: 8px;
     width: 100%;
+    box-sizing: border-box;
+    position: relative;
 }
 
 .incorrect-answer-display {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 10px;
-    padding: 15px;
-    background-color: #fdf2f2;
-    border: 2px solid #dc3545;
+    padding: 15px 15px 15px 0;
+    background-color: transparent;
+    border: none;
     border-radius: 8px;
     width: 100%;
+    box-sizing: border-box;
+    position: relative;
 }
 
 .word-text {
     font-size: 20px;
     font-weight: 500;
-    color: #333;
+    color: #c0c0c0;
+    margin-left: 20px;
+}
+
+.strikethrough {
+    text-decoration: line-through;
 }
 
 .word-input {
     width: 100%;
     padding: 15px 20px;
     font-size: 18px;
-    border: 2px solid #dee2e6;
+    border: 2px solid #444;
     border-radius: 8px;
     outline: none;
     transition: border-color 0.3s ease;
     box-sizing: border-box;
-    background-color: white;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
 }
 
 .word-input:focus {
     border-color: #666;
-    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.3);
 }
 
 .word-display {
