@@ -1,0 +1,31 @@
+words:
+  - word: "zon"
+    icon: "🌞"
+    level: 1
+  - word: "bus"
+    icon: "🚌"
+    level: 1
+  - word: "kat/poes"
+    icon: "🐱"
+    level: 1
+  - word: "maan"
+    icon: "🌙"
+    level: 2
+  - word: "ster"
+    icon: "⭐"
+    level: 2
+  - word: "vuur/vlam"
+    icon: "🔥"
+    level: 2
+  - word: "rups"
+    icon: "🐛"
+    level: 2
+  - word: "boom"
+    icon: "🌳"
+    level: 2
+  - word: "fiets"
+    icon: "🚲"
+    level: 3
+  - word: "appel"
+    icon: "🍎"
+    level: 4

@@ -69,9 +69,9 @@
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        currentWordRecord = DictionaryService.Next(1);
+        currentWordRecord = await DictionaryService.NextAsync(1);
         backgroundImageUrl = BackgroundService.GetRandomBackground();
     }
 
@@ -112,11 +112,11 @@
         displayWord = currentWord;
     }
 
-    private void HandleKeyPress(KeyboardEventArgs e)
+    private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            ValidateWord();
+            await ValidateWord();
         }
     }
 
@@ -131,7 +131,7 @@
         }
     }
 
-    private void ValidateWord()
+    private async Task ValidateWord()
     {
         if (currentWordRecord != null)
         {
@@ -158,7 +158,7 @@
                 
                 // Clear input and get new word
                 currentWord = "";
-                currentWordRecord = DictionaryService.Next(1);
+                currentWordRecord = await DictionaryService.NextAsync(1);
                 
                 // Check if we should pause after 5 correct answers
                 if (correctAnswerCount >= CorrectAnswersBeforePause)
@@ -190,7 +190,7 @@
                 if (incorrectAttempts >= MaxIncorrectAttempts)
                 {
                     // Add correct answer with arrow icon to history
-                    AddToHistory(new AnswerRecord(currentWordRecord, currentWordRecord.Word, true, "⬅️"));
+                    AddToHistory(new AnswerRecord(currentWordRecord, currentWordRecord.Word.Split('/')[0], true, "⬅️"));
                     
                     // Reset error count and reload same word
                     incorrectAttempts = 0;
