@@ -7,6 +7,23 @@ html, body {
     color: #e0e0e0;
 }
 
+.score-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffae42;
+    z-index: 1001;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+    background-color: rgba(51, 51, 51, 0.8);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #555555;
+    letter-spacing: 2px;
+}
+
 .content {
     display: flex;
     justify-content: center;

@@ -13,6 +13,8 @@
     }
 </style>
 
+<div class="score-indicator">💪 @score.ToString("D4")</div>
+
 <div class="game-area">
     @if (isPaused)
     {
@@ -66,6 +68,7 @@
     private int correctAnswerCount = 0;
     private const int CorrectAnswersBeforePause = 5;
     private bool hideNextQuestion = false;
+    private int score = 0; // Score starts at 0
 
     public record AnswerRecord(WordWarrior.Services.WordRecord WordRecord, string UserAttempt, bool IsCorrect, string Icon);
 
@@ -146,6 +149,9 @@
             {
                 // Add correct answer to history
                 AddToHistory(new AnswerRecord(currentWordRecord, userAttempt, true, "✅"));
+                
+                // Increment score by the word's level
+                score += currentWordRecord.Level;
                 
                 // Increment correct answer counter
                 correctAnswerCount++;

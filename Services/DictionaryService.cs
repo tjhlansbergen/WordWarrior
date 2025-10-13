@@ -7,13 +7,19 @@ public record WordRecord(string Word, string Icon, int Level);
 
 public class WordsData
 {
+    [YamlMember(Alias = "words")]
     public List<WordYaml> Words { get; set; } = new();
 }
 
 public class WordYaml
 {
+    [YamlMember(Alias = "word")]
     public string Word { get; set; } = "";
+    
+    [YamlMember(Alias = "icon")]
     public string Icon { get; set; } = "";
+    
+    [YamlMember(Alias = "level")]
     public int Level { get; set; }
 }
 
@@ -64,22 +70,26 @@ public class DictionaryService
         try
         {
             var yamlContent = await _httpClient.GetStringAsync("data/configuration.yaml");
-            var deserializer = new DeserializerBuilder().Build();
+            var deserializer = new DeserializerBuilder()
+                .IgnoreUnmatchedProperties()
+                .Build();
             var wordsData = deserializer.Deserialize<WordsData>(yamlContent);
             
-            _words = wordsData.Words
-                .Select(w => new WordRecord(w.Word, w.Icon, w.Level))
-                .ToArray();
-        }
-        catch
-        {
-            // Fallback to hardcoded words if YAML loading fails
-            _words = new[]
+            if (wordsData?.Words != null && wordsData.Words.Count > 0)
             {
-                new WordRecord("zon", "🌞", 1),
-                new WordRecord("bus", "🚌", 1),
-                new WordRecord("kat/poes", "🐱", 1),
-            };
+                _words = wordsData.Words
+                    .Select(w => new WordRecord(w.Word, w.Icon, w.Level))
+                    .ToArray();
+            }
+            else
+            {
+                throw new InvalidOperationException("No words found in YAML file");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log the error for debugging (in production, use proper logging)
+            Console.WriteLine($"Failed to load YAML: {ex.Message}");
         }
     }
 }
